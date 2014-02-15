@@ -34,8 +34,7 @@ class CodepointIterator : public std::iterator<std::bidirectional_iterator_tag,
 
 	private:
 		std::string::const_iterator iterator_;
-		bool dereferenced_;
-		char32_t codepoint_;
+
 };
 
 class codepoint_invalid: public std::exception {

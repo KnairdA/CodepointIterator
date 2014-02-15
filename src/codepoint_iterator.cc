@@ -5,20 +5,14 @@
 namespace UTF8 {
 
 CodepointIterator::CodepointIterator(std::string::const_iterator iter):
-	iterator_(iter),
-	dereferenced_(false),
-	codepoint_(0) { }
+	iterator_(iter) { }
 
 CodepointIterator::CodepointIterator(const CodepointIterator& src):
-	iterator_(src.iterator_),
-	dereferenced_(src.dereferenced_),
-	codepoint_(src.codepoint_) { }
+	iterator_(src.iterator_) { }
 
 CodepointIterator& CodepointIterator::operator=(const CodepointIterator& src) {
-	this->iterator_     = src.iterator_;
-	this->dereferenced_ = src.dereferenced_;
-	this->codepoint_    = src.codepoint_;
-	
+	this->iterator_ = src.iterator_;
+
 	return *this;
 }
 
@@ -41,64 +35,60 @@ bool CodepointIterator::operator!=(
 }
 
 char32_t CodepointIterator::operator*() {
-	if ( !this->dereferenced_ ) {
-		uint8_t currByte    = *(this->iterator_);
-		this->dereferenced_ = true;
-		this->codepoint_    = 0;
+	uint8_t  currByte  = *(this->iterator_);
+	char32_t codePoint = 0;
 
-		if ( match(currByte, dtl::CodeUnitType::CONTINUATION) ) {
-			if ( match(currByte, dtl::CodeUnitType::THREE) ) {
-				if ( match(currByte, dtl::CodeUnitType::FOUR) ) {
-					dtl::write(this->codepoint_,
-					           currByte,
-					           dtl::CodePoint::FOUR,
-					           18);
-					dtl::write(this->codepoint_,
-					           *(this->iterator_ + 1),
-					           dtl::CodePoint::CONTINUATION,
-					           12);
-					dtl::write(this->codepoint_,
-					           *(this->iterator_ + 2),
-					           dtl::CodePoint::CONTINUATION,
-					           6);
-					dtl::write(this->codepoint_,
-					           *(this->iterator_ + 3),
-					           dtl::CodePoint::CONTINUATION,
-					           0);
-				} else {
-					dtl::write(this->codepoint_,
-					           currByte,
-					           dtl::CodePoint::THREE,
-					           12);
-					dtl::write(this->codepoint_,
-					           *(this->iterator_ + 1),
-					           dtl::CodePoint::CONTINUATION,
-					           6);
-					dtl::write(this->codepoint_,
-					           *(this->iterator_ + 2),
-					           dtl::CodePoint::CONTINUATION,
-					           0);
-				}
-			} else {
-				dtl::write(this->codepoint_,
+	if ( match(currByte, dtl::CodeUnitType::CONTINUATION) ) {
+		if ( match(currByte, dtl::CodeUnitType::THREE) ) {
+			if ( match(currByte, dtl::CodeUnitType::FOUR) ) {
+				dtl::write(codePoint,
 				           currByte,
-				           dtl::CodePoint::TWO,
-				           6);
-				dtl::write(this->codepoint_,
+				           dtl::CodePoint::FOUR,
+				           18);
+				dtl::write(codePoint,
 				           *(this->iterator_ + 1),
+				           dtl::CodePoint::CONTINUATION,
+				           12);
+				dtl::write(codePoint,
+				           *(this->iterator_ + 2),
+				           dtl::CodePoint::CONTINUATION,
+				           6);
+				dtl::write(codePoint,
+				           *(this->iterator_ + 3),
+				           dtl::CodePoint::CONTINUATION,
+				           0);
+			} else {
+				dtl::write(codePoint,
+				           currByte,
+				           dtl::CodePoint::THREE,
+				           12);
+				dtl::write(codePoint,
+				           *(this->iterator_ + 1),
+				           dtl::CodePoint::CONTINUATION,
+				           6);
+				dtl::write(codePoint,
+				           *(this->iterator_ + 2),
 				           dtl::CodePoint::CONTINUATION,
 				           0);
 			}
 		} else {
-			this->codepoint_ = currByte;
+			dtl::write(codePoint,
+			           currByte,
+			           dtl::CodePoint::TWO,
+			           6);
+			dtl::write(codePoint,
+			           *(this->iterator_ + 1),
+			           dtl::CodePoint::CONTINUATION,
+			           0);
 		}
+	} else {
+		codePoint = currByte;
 	}
 
-	return this->codepoint_;
+	return codePoint;
 }
 
 CodepointIterator& CodepointIterator::operator++() {
-	this->dereferenced_                 = false;
 	uint8_t currByte                    = *(this->iterator_);
 	std::string::difference_type offset = 1;
 
@@ -120,7 +110,6 @@ CodepointIterator& CodepointIterator::operator++() {
 }
 
 CodepointIterator& CodepointIterator::operator--() {
-	this->dereferenced_ = false;
 	this->iterator_.operator--();
 
 	if ( match(*(this->iterator_), dtl::CodeUnitType::CONTINUATION) ) {
