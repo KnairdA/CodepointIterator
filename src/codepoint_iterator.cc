@@ -1,35 +1,6 @@
 #include "codepoint_iterator.h"
 
-#include <cstdint>
-
-namespace {
-
-enum class CodeUnitType : uint8_t {
-	CONTINUATION = 128, // 10000000
-	LEADING      = 64,  // 01000000
-	THREE        = 32,  // 00100000
-	FOUR         = 16,  // 00010000
-};
-
-enum class CodePoint : uint8_t {
-	CONTINUATION = 63,  // 00111111
-	TWO          = 31,  // 00011111
-	THREE        = 15,  // 00001111
-	FOUR         = 7,   // 00000111
-};
-
-inline bool match(const uint8_t& codeUnit, CodeUnitType&& type) {
-	return codeUnit & static_cast<uint8_t>(type);
-}
-
-inline void write(char32_t& codePoint,
-                  const uint8_t& codeUnit,
-                  CodePoint&& mask,
-                  const uint8_t& offset) {
-	codePoint += (codeUnit & static_cast<uint8_t>(mask)) << offset;
-}
-
-}
+#include "utility.h"
 
 namespace UTF8 {
 
@@ -75,48 +46,48 @@ char32_t CodepointIterator::operator*() {
 		this->dereferenced_ = true;
 		this->codepoint_    = 0;
 
-		if ( match(currByte, CodeUnitType::CONTINUATION) ) {
-			if ( match(currByte, CodeUnitType::THREE) ) {
-				if ( match(currByte, CodeUnitType::FOUR) ) {
-					write(this->codepoint_,
-					      currByte,
-					      CodePoint::FOUR,
-					      18);
-					write(this->codepoint_,
-					      *(this->iterator_ + 1),
-					      CodePoint::CONTINUATION,
-					      12);
-					write(this->codepoint_,
-					      *(this->iterator_ + 2),
-					      CodePoint::CONTINUATION,
-					      6);
-					write(this->codepoint_,
-					      *(this->iterator_ + 3),
-					      CodePoint::CONTINUATION,
-					      0);
+		if ( match(currByte, dtl::CodeUnitType::CONTINUATION) ) {
+			if ( match(currByte, dtl::CodeUnitType::THREE) ) {
+				if ( match(currByte, dtl::CodeUnitType::FOUR) ) {
+					dtl::write(this->codepoint_,
+					           currByte,
+					           dtl::CodePoint::FOUR,
+					           18);
+					dtl::write(this->codepoint_,
+					           *(this->iterator_ + 1),
+					           dtl::CodePoint::CONTINUATION,
+					           12);
+					dtl::write(this->codepoint_,
+					           *(this->iterator_ + 2),
+					           dtl::CodePoint::CONTINUATION,
+					           6);
+					dtl::write(this->codepoint_,
+					           *(this->iterator_ + 3),
+					           dtl::CodePoint::CONTINUATION,
+					           0);
 				} else {
-					write(this->codepoint_,
-					      currByte,
-					      CodePoint::THREE,
-					      12);
-					write(this->codepoint_,
-					      *(this->iterator_ + 1),
-					      CodePoint::CONTINUATION,
-					      6);
-					write(this->codepoint_,
-					      *(this->iterator_ + 2),
-					      CodePoint::CONTINUATION,
-					      0);
+					dtl::write(this->codepoint_,
+					           currByte,
+					           dtl::CodePoint::THREE,
+					           12);
+					dtl::write(this->codepoint_,
+					           *(this->iterator_ + 1),
+					           dtl::CodePoint::CONTINUATION,
+					           6);
+					dtl::write(this->codepoint_,
+					           *(this->iterator_ + 2),
+					           dtl::CodePoint::CONTINUATION,
+					           0);
 				}
 			} else {
-				write(this->codepoint_,
-				      currByte,
-				      CodePoint::TWO,
-				      6);
-				write(this->codepoint_,
-				      *(this->iterator_ + 1),
-				      CodePoint::CONTINUATION,
-				      0);
+				dtl::write(this->codepoint_,
+				           currByte,
+				           dtl::CodePoint::TWO,
+				           6);
+				dtl::write(this->codepoint_,
+				           *(this->iterator_ + 1),
+				           dtl::CodePoint::CONTINUATION,
+				           0);
 			}
 		} else {
 			this->codepoint_ = currByte;
@@ -131,9 +102,9 @@ CodepointIterator& CodepointIterator::operator++() {
 	uint8_t currByte                    = *(this->iterator_);
 	std::string::difference_type offset = 1;
 
-	if ( match(currByte, CodeUnitType::CONTINUATION) ) {
-		if ( match(currByte, CodeUnitType::THREE) ) {
-			if ( match(currByte, CodeUnitType::FOUR) ) {
+	if ( match(currByte, dtl::CodeUnitType::CONTINUATION) ) {
+		if ( match(currByte, dtl::CodeUnitType::THREE) ) {
+			if ( match(currByte, dtl::CodeUnitType::FOUR) ) {
 				offset = 4;
 			} else {
 				offset = 3;
@@ -150,18 +121,18 @@ CodepointIterator& CodepointIterator::operator++() {
 
 CodepointIterator& CodepointIterator::operator--() {
 	this->dereferenced_ = false;
-	--this->iterator_;
+	this->iterator_.operator--();
 
-	if ( match(*(this->iterator_), CodeUnitType::CONTINUATION) ) {
-		--this->iterator_;
+	if ( match(*(this->iterator_), dtl::CodeUnitType::CONTINUATION) ) {
+		this->iterator_.operator--();
 
-		if ( !match(*(this->iterator_), CodeUnitType::LEADING) ) {
-			--this->iterator_;
+		if ( !match(*(this->iterator_), dtl::CodeUnitType::LEADING) ) {
+			this->iterator_.operator--();
 
-			if ( !match(*(this->iterator_), CodeUnitType::LEADING) ) {
-				--this->iterator_;
+			if ( !match(*(this->iterator_), dtl::CodeUnitType::LEADING) ) {
+				this->iterator_.operator--();
 
-				if ( !match(*(this->iterator_), CodeUnitType::LEADING) ) {
+				if ( !match(*(this->iterator_), dtl::CodeUnitType::LEADING) ) {
 					throw codepoint_invalid();
 				}
 			}
@@ -174,7 +145,7 @@ CodepointIterator& CodepointIterator::operator--() {
 CodepointIterator CodepointIterator::operator++(int) {
 	CodepointIterator oldIter(*this);
 
-	++(*this);
+	this->operator++();
 
 	return oldIter;
 }
@@ -182,7 +153,7 @@ CodepointIterator CodepointIterator::operator++(int) {
 CodepointIterator CodepointIterator::operator--(int) {
 	CodepointIterator oldIter(*this);
 
-	--(*this);
+	this->operator--();
 
 	return oldIter;
 }

@@ -1,7 +1,8 @@
 CXX      = g++ 
 CXXFLAGS = -std=c++11 -W -Wall -Wextra -pedantic
 
-SRC  = src/codepoint_iterator.cc \
+SRC  = src/utility.cc            \
+       src/codepoint_iterator.cc \
        test.cc
 OBJ  = $(subst .cc,.o,$(SRC))
 
