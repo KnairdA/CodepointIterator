@@ -9,9 +9,7 @@ namespace UTF8 {
 
 class CodepointIterator : public std::iterator<std::bidirectional_iterator_tag,
                                                char32_t,
-                                               std::string::difference_type,
-                                               const char32_t*,
-                                               const char32_t&> {
+                                               std::string::difference_type> {
 	public:
 		CodepointIterator(std::string::const_iterator);
 		CodepointIterator(const CodepointIterator&);

@@ -35,8 +35,8 @@ bool CodepointIterator::operator!=(
 }
 
 char32_t CodepointIterator::operator*() {
-	uint8_t  currByte  = *(this->iterator_);
-	char32_t codePoint = 0;
+	std::uint8_t  currByte  = *(this->iterator_);
+	char32_t codePoint      = 0;
 
 	if ( match(currByte, dtl::CodeUnitType::CONTINUATION) ) {
 		if ( match(currByte, dtl::CodeUnitType::THREE) ) {
@@ -89,8 +89,8 @@ char32_t CodepointIterator::operator*() {
 }
 
 CodepointIterator& CodepointIterator::operator++() {
-	uint8_t currByte                    = *(this->iterator_);
-	std::string::difference_type offset = 1;
+	std::uint8_t currByte(*(this->iterator_));
+	std::string::difference_type offset(1);
 
 	if ( match(currByte, dtl::CodeUnitType::CONTINUATION) ) {
 		if ( match(currByte, dtl::CodeUnitType::THREE) ) {
