@@ -43,7 +43,7 @@ class CodepointIteratorTest : public ::testing::Test {
 };
 
 TEST_F(CodepointIteratorTest, ForwardIteration) {
-	for ( auto tmp : this->sample_ ) {
+	for ( auto&& tmp : this->sample_ ) {
 		size_t length = 0;
 
 		for ( UTF8::CodepointIterator iter(tmp.text.cbegin());
@@ -57,7 +57,7 @@ TEST_F(CodepointIteratorTest, ForwardIteration) {
 }
 
 TEST_F(CodepointIteratorTest, ReverseIteration) {
-	for ( auto tmp : this->sample_ ) {
+	for ( auto&& tmp : this->sample_ ) {
 		size_t length = 0;
 
 		for ( UTF8::CodepointIterator iter(tmp.text.cend());
@@ -71,7 +71,7 @@ TEST_F(CodepointIteratorTest, ReverseIteration) {
 }
 
 TEST_F(CodepointIteratorTest, Dereferencing) {
-	for ( auto tmp : this->sample_ ) {
+	for ( auto&& tmp : this->sample_ ) {
 		size_t index = 0;
 
 		for ( UTF8::CodepointIterator iter(tmp.text.cbegin());

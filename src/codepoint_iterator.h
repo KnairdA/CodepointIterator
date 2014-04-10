@@ -22,6 +22,8 @@ class CodepointIterator : public std::iterator<std::bidirectional_iterator_tag,
 		bool operator!=(const CodepointIterator&) const;
 		bool operator!=(const std::string::const_iterator&) const;
 
+		std::ptrdiff_t operator-(const std::string::const_iterator&) const;
+
 		char32_t operator*();
 
 		CodepointIterator& operator++();

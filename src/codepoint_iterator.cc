@@ -34,6 +34,11 @@ bool CodepointIterator::operator!=(
 	return this->iterator_ != src;
 }
 
+std::ptrdiff_t CodepointIterator::operator-(
+	const std::string::const_iterator& src) const {
+	return this->iterator_ - src;
+}
+
 char32_t CodepointIterator::operator*() {
 	std::uint8_t  currByte  = *(this->iterator_);
 	char32_t codePoint      = 0;
