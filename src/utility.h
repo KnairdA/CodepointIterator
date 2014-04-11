@@ -20,8 +20,16 @@ enum class CodePoint : std::uint8_t {
 	FOUR         = (UINT8_MAX >> 5), // 00000111
 };
 
-bool match(const std::uint8_t&, CodeUnitType&&);
-void write(char32_t&, const std::uint8_t&, CodePoint&&, const std::uint8_t&);
+inline bool match(std::uint8_t unit, CodeUnitType type) {
+	return unit & static_cast<std::uint8_t>(type);
+}
+
+inline void write(char32_t& point,
+                  std::uint8_t unit,
+                  CodePoint mask,
+                  std::uint8_t offset) {
+	point += (unit & static_cast<std::uint8_t>(mask)) << offset;
+}
 
 }
 }
