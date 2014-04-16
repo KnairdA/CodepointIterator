@@ -10,6 +10,11 @@ namespace UTF8 {
 class CodepointIterator : public std::iterator<std::bidirectional_iterator_tag,
                                                char32_t,
                                                std::string::difference_type> {
+	static_assert(
+		sizeof(std::string::value_type) == 1,
+		"CodepointIterator only supports single-byte UTF-8 encoded input"
+	);
+
 	public:
 		CodepointIterator(std::string::const_iterator);
 		CodepointIterator(const CodepointIterator&);

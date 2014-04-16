@@ -40,8 +40,10 @@ std::ptrdiff_t CodepointIterator::operator-(
 }
 
 char32_t CodepointIterator::operator*() {
-	std::uint8_t  currByte  = *(this->iterator_);
-	char32_t codePoint      = 0;
+	const std::uint8_t currByte(
+		static_cast<std::uint8_t>(*(this->iterator_))
+	);
+	char32_t codePoint{};
 
 	if ( match(currByte, dtl::CodeUnitType::CONTINUATION) ) {
 		if ( match(currByte, dtl::CodeUnitType::THREE) ) {
@@ -94,7 +96,9 @@ char32_t CodepointIterator::operator*() {
 }
 
 CodepointIterator& CodepointIterator::operator++() {
-	std::uint8_t currByte(*(this->iterator_));
+	const std::uint8_t currByte(
+		static_cast<std::uint8_t>(*(this->iterator_))
+	);
 	std::string::difference_type offset(1);
 
 	if ( match(currByte, dtl::CodeUnitType::CONTINUATION) ) {
